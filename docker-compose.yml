@@ -1,23 +1,24 @@
 services:
-  autossh-dynamic-forward:
+  autossh-tunnel:
     build:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
 
     environment:
-      # --- リモートサーバーへの接続情報 ---
       SSH_USER: "${SSH_USER}"
       SSH_HOST: "${SSH_HOST}"
       SSH_PORT: "${SSH_PORT}"
-      
       SSH_KEY_PATH: "/root/.ssh/${IDENTITY_FILE}"
 
-      # --- トンネル設定 ---
-      DYNAMIC_PORT: "${DYNAMIC_PORT}"
-    
-    ports:
-      - "${DYNAMIC_PORT}:${DYNAMIC_PORT}"
+      # 使うものだけ設定（未設定の場合はスキップ）
+      LOCAL_TUNNELS: "${LOCAL_TUNNELS:-}"
+      REMOTE_TUNNELS: "${REMOTE_TUNNELS:-}"
+      DYNAMIC_PORT: "${DYNAMIC_PORT:-}"
+
+    # -D (SOCKSプロキシ) や -L を使う場合、必要なポートをここに追加
+    # ports:
+    #   - "${DYNAMIC_PORT}:${DYNAMIC_PORT}"
 
     volumes:
       - ./ssh_key/${IDENTITY_FILE}:/root/.ssh/${IDENTITY_FILE}:ro
